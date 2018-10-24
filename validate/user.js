@@ -1,3 +1,5 @@
+const logger = require('../services/logger');
+
 function validaRequest(req, res, login = false) {
   if (! login)
     req.assert('name', 'Nome é obrigatório.').notEmpty();
@@ -6,7 +8,7 @@ function validaRequest(req, res, login = false) {
   
   const errors = req.validationErrors();
   if( errors ){
-    console.log('Erro de validação encontrado');
+    logger.info('Erro de validação: ' + erros);
     res.status(400).send(errors);
     return false;
   }

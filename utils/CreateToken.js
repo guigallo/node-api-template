@@ -7,7 +7,7 @@ function CreateToken(id, permissions) {
     permissions
   };
   const options = {
-    expiresIn: config.expireToken //expires in 24 hours
+    expiresIn: config.expireToken
   }
   return jwt.sign(payload, config.secret, options);
 };

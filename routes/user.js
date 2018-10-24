@@ -5,6 +5,8 @@ const VerifyToken = require('../utils/VerifyToken');
 const guard = require('express-jwt-permissions')();
 const CreateToken = require('../utils/CreateToken');
 
+const logger = require('../services/logger');
+
 const ROTA = '/user';
 
 module.exports = function(app) {
@@ -21,6 +23,7 @@ module.exports = function(app) {
           })
         );
 
+        logger.info('Todos usuários visualizados por: ' + req.user.id);
         return res.status(200).send(usersFiltrado);
       })
   });
@@ -30,6 +33,7 @@ module.exports = function(app) {
         if(err) return res.status(500).send('Houve um erro ao buscar os usuários');
         if(! usuario) return res.status(404).send('Nenhum usuário encontrado');
         
+        logger.info('Consulta de usuário feita por: ' + req.user.id);
         return res.status(200).send({
           id: usuario._id,
           name: usuario.name,
@@ -39,11 +43,8 @@ module.exports = function(app) {
   }); 
 
   app.post(ROTA, function(req, res) {
-      console.log('Processando novo user');
-
       if(! validaRequest(req, res) ) return;
 
-      //const hashedPassword = bcryptjs.hashSync(req.body.password, 8);
       const hashedPassword = PasswordsUtil.hashed(req.body.password);
       userModel.create({
         name: req.body.name,
@@ -53,25 +54,11 @@ module.exports = function(app) {
       }, function(err, User) {
         if(err) return res.status(500).send('Houve um erro ao registrar o usuário');
 
-        //extract to a function
-        /*
-        const payload = {
-          id: User._id,
-          permissions: User.permissions
-        };
-        const options = {
-          expiresIn: 86400 //expires in 24 hours
-        }
-        const token = jwt.sign(payload, config.secret, options);
-        */
-        //
-      const token = CreateToken(User._id, User.permissions);
+        const token = CreateToken(User._id, User.permissions);
 
-        console.log('Usuário cadastrado com sucesso');
+        logger.info('Novo usuário cadastrado: ' + req.body.email);
         res.status(201).send({ auth: true, token });
-      })
-
-      console.log('corpo: ' + req.body);
+      });
   });
 
   app.put(ROTA + '/:id', VerifyToken, guard.check('user:write'), function(req, res) {
@@ -81,6 +68,7 @@ module.exports = function(app) {
       userModel.findByIdAndUpdate(req.params.id, req.body, (err, resposta) => {
         if(err) return res.status(500).send('Erro ao alterar usuário');
 
+        logger.info('Usuário alterado: ' + req.params.id);
         return res.status(200).send('Usuário alterado com sucesso.');
       });
   });
@@ -89,6 +77,7 @@ module.exports = function(app) {
       userModel.findByIdAndDelete(req.params.id, function(err, usuario) {
         if(err) return res.status(500).send('Houve um erro ao buscar os usuários');
         
+        logger.info('Usuário deletado: ' + req.params.id + ' pelo usuário: ' + req.user.id);
         return res.status(201).send('Usuário deletado com sucesso. Id: ' + req.params.id);
       });
   });
