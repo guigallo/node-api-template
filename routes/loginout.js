@@ -19,7 +19,7 @@ module.exports = function(app) {
       const passwordIsValid = PasswordsUtil.compare(req.body.password, User.password);
       if(! passwordIsValid) return res.status(401).send({ auth: false, token: null });
 
-      logger.info('Usuário logado: ' + user._id);
+      logger.info('Usuário logado: ' + User._id);
       const token = CreateToken(User._id, User.permissions);
       res.status(200).send({ auth: true, token });
     });
@@ -53,15 +53,13 @@ module.exports = function(app) {
     if(!pwOld || !pwNew)
       return res.status(400).send('Envie a senha atual e nova para trocar a senha.');
 
-    let password = PasswordsUtil.hashed(pwNew);
-    let passwordOld = PasswordsUtil.hashed(pwOld);
-
     userModel.findById(req.user.id, (err, user) => {
       if(err) return res.status(500).send('Usuário não encontrado');
-
-      if(! user.password === passwordOld) 
-        return res.status(400).send('A senha atual não está correta');
       
+      if(! PasswordsUtil.compare(pwOld, user.password))
+      return res.status(400).send('A senha atual não está correta.');
+      
+      let password = PasswordsUtil.hashed(pwNew);
       userModel.findOneAndUpdate({ _id: req.user.id}, { password }, (err2, resposta) => {
         if(err2) return res.status(500).send('Erro ao alterar senha');
 

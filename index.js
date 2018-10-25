@@ -4,3 +4,5 @@ const app = require('./config/custom-express')();
 app.listen(config.port, function() {
   console.log('Servidor rodando na porta ' + config.port);
 })
+
+module.exports = app;
