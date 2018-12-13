@@ -178,7 +178,7 @@ describe('Log in/out', () => {
         .send({ newPassword })
         .end((err, res) => {
           res.should.have.status(400);
-          res.should.have.property('text').eql('Envie a senha atual e nova para trocar a senha.');
+          res.body.should.have.property('message').eql('Envie a senha atual e nova para trocar a senha.');
           done();
         });
     });
@@ -190,7 +190,7 @@ describe('Log in/out', () => {
         .send({ password })
         .end((err, res) => {
           res.should.have.status(400);
-          res.should.have.property('text').eql('Envie a senha atual e nova para trocar a senha.');
+          res.body.should.have.property('message').eql('Envie a senha atual e nova para trocar a senha.');
           done();
         });
     });
@@ -202,7 +202,7 @@ describe('Log in/out', () => {
         .send({ password: newPassword, newPassword})
         .end((err, res) => {
           res.should.have.status(400);
-          res.should.have.property('text').eql('Escolha uma senha diferente da atual.');
+          res.body.should.have.property('message').eql('Escolha uma senha diferente da atual.');
           done();
         })
     });
@@ -214,7 +214,7 @@ describe('Log in/out', () => {
         .send({ password: 'senhaErrada', newPassword})
         .end((err, res) => {
           res.should.have.status(400);
-          res.should.have.property('text').eql('A senha atual não está correta.');
+          res.body.should.have.property('message').eql('A senha atual não está correta.');
           done();
         })
     });
@@ -226,7 +226,7 @@ describe('Log in/out', () => {
         .send({ password, newPassword })
         .end((err, res) => {
           res.should.have.status(200);
-          res.should.have.property('text').eql('Senha alterada com sucesso.');
+          res.body.should.have.property('message').eql('Senha alterada com sucesso.');
           done();
         });
     });

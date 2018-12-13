@@ -13,15 +13,15 @@ module.exports = function(app) {
     if(! validaRequest(req, res, true) ) return;
 
     userModel.findOne({ email: req.body.email }, function(err, User) {
-      if(err) return res.status(500).send('Erro no servidor');
-      if(! User) return res.status(404).send('Usuário não encontrado');
+      if(err) return res.status(500).json({ message: 'Erro no servidor'});
+      if(! User) return res.status(404).json({ message: 'Usuário não encontrado'});
 
       const passwordIsValid = PasswordsUtil.compare(req.body.password, User.password);
-      if(! passwordIsValid) return res.status(401).send({ auth: false, token: null });
+      if(! passwordIsValid) return res.status(401).json({ auth: false, token: null });
 
       logger.info('Usuário logado: ' + User._id);
       const token = CreateToken(User._id, User.permissions);
-      res.status(200).send({ auth: true, token });
+      res.status(200).json({ auth: true, token });
     });
   });
 
@@ -30,18 +30,18 @@ module.exports = function(app) {
       req.user.id,
       { password: 0 }, //projection
       function(err, user) {
-        if(err) return res.status(500).send('Erro ao buscar usuário');
-        if(! user) return res.status(404).send('Usuário não encontrado');
+        if(err) return res.status(500).json({ message: 'Erro ao buscar usuário'});
+        if(! user) return res.status(404).json({ message: 'Usuário não encontrado'});
 
         logger.info('Usuário retornado: ' + user._id);
-        res.status(200).send(user);
+        res.status(200).json(user);
       }
     );
   });
 
   app.get(ROTA + '/out', function(req, res) {
     logger.info('Usuário deslogado');
-    res.status(200).send({ auth:false, token: null });
+    res.status(200).json({ auth:false, token: null });
   });
   
   app.put(ROTA + '/newpassword', VerifyToken, function(req, res) {
@@ -49,22 +49,22 @@ module.exports = function(app) {
     let pwNew = req.body.newPassword;
 
     if(pwOld === pwNew)
-      return res.status(400).send('Escolha uma senha diferente da atual.');
+      return res.status(400).json({ message: 'Escolha uma senha diferente da atual.'});
     if(!pwOld || !pwNew)
-      return res.status(400).send('Envie a senha atual e nova para trocar a senha.');
+      return res.status(400).json({ message: 'Envie a senha atual e nova para trocar a senha.'});
 
     userModel.findById(req.user.id, (err, user) => {
-      if(err) return res.status(500).send('Usuário não encontrado');
+      if(err) return res.status(500).json({ message: 'Usuário não encontrado'});
       
       if(! PasswordsUtil.compare(pwOld, user.password))
-      return res.status(400).send('A senha atual não está correta.');
+      return res.status(400).json({ message: 'A senha atual não está correta.'});
       
       let password = PasswordsUtil.hashed(pwNew);
       userModel.findOneAndUpdate({ _id: req.user.id}, { password }, (err2, resposta) => {
-        if(err2) return res.status(500).send('Erro ao alterar senha');
+        if(err2) return res.status(500).json({ message: 'Erro ao alterar senha'});
 
         logger.info('Senha alterada do usuário: ' + user._id);
-        return res.status(200).send('Senha alterada com sucesso.');
+        return res.status(200).json({ message: 'Senha alterada com sucesso.'});
       });
     });
   });
