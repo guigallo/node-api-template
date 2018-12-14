@@ -1,9 +1,11 @@
+const port = process.env.PORT || 3001;
+
 module.exports = {
-  port:         3001,
+  port:         port,
 
   dbAddress:    'localhost',
   dbPort:       '27017',
-  dbDataBase:   'correios-api',
+  dbDataBase:   'node-base-api',
 
   expireToken:  86400, // 24 hours
 

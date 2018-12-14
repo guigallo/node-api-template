@@ -19,12 +19,11 @@ let token = '';
 describe('Log in/out', () => {
   before(done => {
     User.deleteMany({}, err => {
-
       const user = new User({
         name, email,
         password: PasswordsUtil.hashed(password)
       });
-      
+
       user.save((err, user) => {
         id = user._id;
         done();
