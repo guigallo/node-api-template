@@ -1,15 +1,11 @@
 const PasswordsUtil = require('../utils/PasswordsUtil');
 const userModel = require('../models/User');
 const validaRequest = require('../validate/user');
-const VerifyToken = require('../utils/VerifyToken');
 const CreateToken = require('../utils/CreateToken');
-
 const logger = require('../services/logger');
 
-const ROTA = '/log';
-
-module.exports = function(app) {
-  app.post(ROTA + '/in', function(req, res) {
+module.exports = {
+  login(req, res) {
     if(! validaRequest(req, res, true) ) return;
 
     userModel.findOne({ email: req.body.email }, function(err, User) {
@@ -23,9 +19,9 @@ module.exports = function(app) {
       const token = CreateToken(User._id, User.permissions);
       res.status(200).json({ auth: true, token });
     });
-  });
+  },
 
-  app.get(ROTA + '/me', VerifyToken, function(req, res) {
+  userData(req, res) {
     userModel.findById(
       req.user.id,
       { password: 0 }, //projection
@@ -37,14 +33,14 @@ module.exports = function(app) {
         res.status(200).json(user);
       }
     );
-  });
+  },
 
-  app.get(ROTA + '/out', function(req, res) {
+  logout(req, res) {
     logger.info('Usuário deslogado');
     res.status(200).json({ auth:false, token: null });
-  });
-  
-  app.put(ROTA + '/newpassword', VerifyToken, function(req, res) {
+  },
+
+  newPassword(req, res) {
     let pwOld = req.body.password;
     let pwNew = req.body.newPassword;
 
@@ -67,5 +63,5 @@ module.exports = function(app) {
         return res.status(200).json({ message: 'Senha alterada com sucesso.'});
       });
     });
-  });
+  }
 }

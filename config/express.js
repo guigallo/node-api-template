@@ -5,7 +5,7 @@ const validator = require('express-validator');
 const morgan = require('morgan');
 const logger = require('../services/logger');
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./documentation.json');
+const swaggerDocument = require('../documentation/swagger.json');
 const app = express();
 
 function enableCors() {
