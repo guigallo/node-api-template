@@ -9,10 +9,6 @@
     {
       "url": "http://localhost:3001/",
       "description": "local server for development"
-    },
-    {
-      "url": "http://staging-api.example.com",
-      "description": "Optional server description, e.g. Internal staging server for testing"
     }
   ],
   "tags": [
@@ -33,52 +29,20 @@
           "Login"
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/Login"
         },
         "responses": {
           "200": {
-            "description": "Login sucess",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "auth": {
-                      "type": "boolean",
-                      "default": true
-                    },
-                    "token": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/responses/Logged"
           },
           "401": {
-            "description": "Invalid password"
+            "$ref": "#/components/responses/InvalidPassword"
           },
           "404": {
-            "description": "User not found"
+            "$ref": "#/components/responses/UserNotFound"
           },
           "500": {
-            "description": "Internal error"
+            "$ref": "#/components/responses/InternalError"
           }
         }
       }
@@ -92,45 +56,21 @@
         ],
         "parameters": [
           {
-            "in": "header",
-            "name": "x-access-token",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
+            "$ref": "#/components/parameters/Token"
           }
         ],
         "responses": {
           "200": {
-            "description": "User data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "_id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    }
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/responses/UserData"
           },
           "403": {
-            "description": "Token required"
+            "$ref": "#/components/responses/TokenRequired"
           },
           "404": {
-            "description": "User not found"
+            "$ref": "#/components/responses/UserNotFound"
           },
           "500": {
-            "description": "Internal error"
+            "$ref": "#/components/responses/InternalError"
           }
         }
       }
@@ -157,31 +97,11 @@
         ],
         "parameters": [
           {
-            "in": "header",
-            "name": "x-access-token",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
+            "$ref": "#/components/parameters/Token"
           }
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "password": {
-                    "type": "string"
-                  },
-                  "newPassword": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/NewPassword"
         },
         "responses": {
           "200": {
@@ -194,10 +114,10 @@
             "description": "Actual password not correct"
           },
           "404": {
-            "description": "User not found"
+            "$ref": "#/components/responses/UserNotFound"
           },
           "500": {
-            "description": "Internal error"
+            "$ref": "#/components/responses/InternalError"
           }
         }
       }
@@ -210,12 +130,7 @@
         ],
         "parameters": [
           {
-            "in": "header",
-            "name": "x-access-token",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
+            "$ref": "#/components/parameters/Token"
           }
         ],
         "responses": {
@@ -223,13 +138,13 @@
             "description": "Password changed"
           },
           "403": {
-            "description": "Token required"
+            "$ref": "#/components/responses/TokenRequired"
           },
           "404": {
-            "description": "User not found"
+            "$ref": "#/components/responses/UserNotFound"
           },
           "500": {
-            "description": "Internal error"
+            "$ref": "#/components/responses/InternalError"
           }
         }
       },
@@ -239,54 +154,26 @@
           "Users"
         ],
         "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/CreaterUser"
         },
         "responses": {
           "201": {
-            "description": "User created",
+            "description": "User created and logged in",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "auth": {
-                      "type": "boolean",
-                      "default": true
-                    },
-                    "token": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/Logged"
                 }
               }
             }
           },
           "500": {
-            "description": "Internal error"
+            "$ref": "#/components/responses/InternalError"
           }
         }
       }
     },
-    "/users{userId}": {
+    "/users/{userId}": {
       "get": {
         "summary": "Get user by id",
         "tags": [
@@ -294,60 +181,247 @@
         ],
         "parameters": [
           {
-            "in": "header",
-            "name": "x-access-token",
-            "description": "Authentication token to access API",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
+            "$ref": "#/components/parameters/Token"
           },
           {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "description": "The ID of the user to return.",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/UserId"
           }
         ],
         "responses": {
           "200": {
-            "description": "Get user data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "email": {
-                        "type": "string",
-                        "format": "email"
-                      }
-                    }
-                  }
+            "$ref": "#/components/responses/ArrayUsers"
+          },
+          "403": {
+            "$ref": "#/components/responses/TokenRequired"
+          },
+          "404": {
+            "$ref": "#/components/responses/UserNotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update user by id",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Token"
+          },
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/CreaterUser"
+        },
+        "responses": {
+          "201": {
+            "description": "User updated"
+          },
+          "400": {
+            "description": "Can't change the password"
+          },
+          "403": {
+            "$ref": "#/components/responses/TokenRequired"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete user by id",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Token"
+          },
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User deleted"
+          },
+          "403": {
+            "$ref": "#/components/responses/TokenRequired"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Logged": {
+        "type": "object",
+        "properties": {
+          "auth": {
+            "type": "boolean",
+            "default": true
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "UserData": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "NewPassword": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "Token": {
+        "in": "header",
+        "name": "x-access-token",
+        "description": "Authentication token to access API",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      },
+      "UserId": {
+        "name": "userId",
+        "in": "path",
+        "required": true,
+        "description": "The ID of the user to return.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "requestBodies": {
+      "Login": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "password": {
+                  "type": "string"
                 }
               }
             }
-          },
-          "403": {
-            "description": "Token required"
-          },
-          "404": {
-            "description": "User not found"
-          },
-          "500": {
-            "description": "Internal error"
           }
         }
+      },
+      "NewPassword": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/NewPassword"
+            }
+          }
+        }
+      },
+      "CreaterUser": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Logged": {
+        "description": "Login sucess",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Logged"
+            }
+          }
+        }
+      },
+      "UserData": {
+        "description": "User data",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UserData"
+            }
+          }
+        }
+      },
+      "ArrayUsers": {
+        "description": "Get user data",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      },
+      "TokenRequired": {
+        "description": "Token required"
+      },
+      "InvalidPassword": {
+        "description": "Invalid password"
+      },
+      "UserNotFound": {
+        "description": "User not found"
+      },
+      "InternalError": {
+        "description": "Internal Error"
       }
     }
   }

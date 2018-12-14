@@ -7,8 +7,8 @@ const logger = require('../services/logger');
 module.exports = {
   getAllUsers(req, res) {
     userModel.find({}, function(err, usuarios) {
-      if(err) return res.status(500).json('Houve um erro ao buscar os usuários');
-      if(! usuarios) return res.status(404).json('Nenhum usuário encontrado');
+      if(err) return res.status(500).json({ message: 'Houve um erro ao buscar os usuários' });
+      if(! usuarios) return res.status(404).json({ message: 'Nenhum usuário encontrado' });
 
       let usersFiltrado = [];
       usuarios.map(usuario => usersFiltrado.push({
@@ -25,8 +25,8 @@ module.exports = {
 
   getUserById(req, res) {
     userModel.findById( req.params.id, function(err, usuario) {
-      if(err) return res.status(500).json('Houve um erro ao buscar os usuários');
-      if(! usuario) return res.status(404).json('Nenhum usuário encontrado');
+      if(err) return res.status(500).json({ message: 'Houve um erro ao buscar os usuários' });
+      if(! usuario) return res.status(404).json({ message: 'Nenhum usuário encontrado' });
       
       logger.info('Consulta de usuário feita por: ' + req.user.id);
       return res.status(200).json({
@@ -47,7 +47,7 @@ module.exports = {
       password: hashedPassword,
       permissions: ['user']
     }, function(err, User) {
-      if(err) return res.status(500).json('Houve um erro ao registrar o usuário');
+      if(err) return res.status(500).json({ message: 'Houve um erro ao registrar o usuário' });
 
       const token = CreateToken(User._id, User.permissions);
 
@@ -58,22 +58,22 @@ module.exports = {
 
   updateUser(req, res) {
     if(req.body.password || req.body.newPassword)
-      return res.status(400).json('Use a rota "/user/newpassword" para alterar a senha');
+      return res.status(400).json({ message: 'Use a rota "/user/newpassword" para alterar a senha' });
 
     userModel.findByIdAndUpdate(req.params.id, req.body, (err, resposta) => {
-      if(err) return res.status(500).json('Erro ao alterar usuário');
+      if(err) return res.status(500).json({ message: 'Erro ao alterar usuário' });
 
       logger.info('Usuário alterado: ' + req.params.id);
-      return res.status(200).json('Usuário alterado com sucesso.');
+      return res.status(201).json({ message: 'Usuário alterado com sucesso.' });
     });
   },
 
   deleteUser(req, res) {
     userModel.findByIdAndDelete(req.params.id, function(err, usuario) {
-      if(err) return res.status(500).json('Houve um erro ao buscar os usuários');
+      if(err) return res.status(500).json({ message: 'Houve um erro ao buscar os usuários' });
       
-      logger.info('Usuário deletado: ' + req.params.id + ' pelo usuário: ' + req.user.id);
-      return res.status(201).json('Usuário deletado com sucesso. Id: ' + req.params.id);
+      logger.info({ message: 'Usuário deletado: ' + req.params.id + ' pelo usuário: ' + req.user.id });
+      return res.status(201).json({ message: 'Usuário deletado com sucesso. Id: ' + req.params.id });
     });
   }
 }
