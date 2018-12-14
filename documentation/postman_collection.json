@@ -1,0 +1,285 @@
+{
+	"info": {
+		"_postman_id": "f3ad7936-ffd9-4e70-a823-5e78a6a7dc18",
+		"name": "Node Base JWT",
+		"description": "Base for projects using jwt auth. Project  on [Github](https://github.com/guigallo/node-base-jwt/).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "log",
+			"item": [
+				{
+					"name": "Authenticate user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:3001/log/in",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"log",
+								"in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:3001/log/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"log",
+								"me"
+							]
+						},
+						"description": "Get user data with token"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:3001/log/out",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"log",
+								"out"
+							]
+						},
+						"description": "Clear token from client"
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for log"
+		},
+		{
+			"name": "newpassword",
+			"item": [
+				{
+					"name": "Change user password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:3001/newpassword",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"newpassword"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for newpassword"
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "Get all users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:3001/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:3001/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:3001/users/:userId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:3001/users/:userId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user by id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:3001/users/:userId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Folder for users"
+		}
+	]
+}
