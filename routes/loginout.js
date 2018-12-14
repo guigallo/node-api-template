@@ -54,10 +54,10 @@ module.exports = function(app) {
       return res.status(400).json({ message: 'Envie a senha atual e nova para trocar a senha.'});
 
     userModel.findById(req.user.id, (err, user) => {
-      if(err) return res.status(500).json({ message: 'Usuário não encontrado'});
+      if(err) return res.status(404).json({ message: 'Usuário não encontrado'});
       
       if(! PasswordsUtil.compare(pwOld, user.password))
-      return res.status(400).json({ message: 'A senha atual não está correta.'});
+      return res.status(403).json({ message: 'A senha atual não está correta.'});
       
       let password = PasswordsUtil.hashed(pwNew);
       userModel.findOneAndUpdate({ _id: req.user.id}, { password }, (err2, resposta) => {

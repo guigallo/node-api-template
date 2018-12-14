@@ -7,9 +7,10 @@ const CreateToken = require('../utils/CreateToken');
 
 const logger = require('../services/logger');
 
-const ROTA = '/user';
+const ROTA = '/users';
 
 module.exports = function(app) {
+  // documentation
   app.get(ROTA, VerifyToken, guard.check('user:read'), function(req, res) {
       userModel.find({}, function(err, usuarios) {
         if(err) return res.status(500).json('Houve um erro ao buscar os usuários');
@@ -28,6 +29,7 @@ module.exports = function(app) {
       })
   });
 
+  // documentation
   app.get(ROTA + '/:id', VerifyToken, guard.check('user:write'), function(req, res) {
       userModel.findById( req.params.id, function(err, usuario) {
         if(err) return res.status(500).json('Houve um erro ao buscar os usuários');
@@ -42,23 +44,24 @@ module.exports = function(app) {
       });
   }); 
 
+  // documentation
   app.post(ROTA, function(req, res) {
-      if(! validaRequest(req, res) ) return;
+    if(! validaRequest(req, res) ) return;
 
-      const hashedPassword = PasswordsUtil.hashed(req.body.password);
-      userModel.create({
-        name: req.body.name,
-        email: req.body.email,
-        password: hashedPassword,
-        permissions: ['user']
-      }, function(err, User) {
-        if(err) return res.status(500).json('Houve um erro ao registrar o usuário');
+    const hashedPassword = PasswordsUtil.hashed(req.body.password);
+    userModel.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword,
+      permissions: ['user']
+    }, function(err, User) {
+      if(err) return res.status(500).json('Houve um erro ao registrar o usuário');
 
-        const token = CreateToken(User._id, User.permissions);
+      const token = CreateToken(User._id, User.permissions);
 
-        logger.info('Novo usuário cadastrado: ' + req.body.email);
-        res.status(201).json({ auth: true, token });
-      });
+      logger.info('Novo usuário cadastrado: ' + req.body.email);
+      res.status(201).json({ auth: true, token });
+    });
   });
 
   app.put(ROTA + '/:id', VerifyToken, guard.check('user:write'), function(req, res) {

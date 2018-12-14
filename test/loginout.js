@@ -40,7 +40,7 @@ describe('Log in/out', () => {
   /**
    * Test the log in
    */
-  describe('#Log In', () => {
+  describe('# Log In', () => {
     it('it should log in', done => {
       chai.request(server)
         .post('/log/in')
@@ -83,7 +83,7 @@ describe('Log in/out', () => {
   /**
    * Test the log me
    */
-  describe('#Log Me', () => {
+  describe('# Log Me', () => {
     it('get user data with token', done => {
       chai.request(server)
         .get('/log/me')
@@ -127,7 +127,7 @@ describe('Log in/out', () => {
   /**
    * Test the log out
    */
-  describe('#Log Out', () => {
+  describe('# Log Out', () => {
     it('log out an authenticated user', done => {
       chai.request(server)
         .get('/log/out')
@@ -144,7 +144,7 @@ describe('Log in/out', () => {
   /**
    * Teste the log change password
    */
-  describe('#Change password to log in', () => {
+  describe('# Change password', () => {
     it('changing password with no token', done => {
       chai.request(server)
         .put('/log/newpassword')
@@ -212,7 +212,7 @@ describe('Log in/out', () => {
         .set('x-access-token', token)
         .send({ password: 'senhaErrada', newPassword})
         .end((err, res) => {
-          res.should.have.status(400);
+          res.should.have.status(403);
           res.body.should.have.property('message').eql('A senha atual não está correta.');
           done();
         })

@@ -1,0 +1,354 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Node Base JWT",
+    "description": "Base for projects using jwt auth. Project  on [Github](https://github.com/guigallo/node-base-jwt/).",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001/",
+      "description": "local server for development"
+    },
+    {
+      "url": "http://staging-api.example.com",
+      "description": "Optional server description, e.g. Internal staging server for testing"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Login",
+      "description": "Authentication system"
+    },
+    {
+      "name": "Users",
+      "description": "Users API"
+    }
+  ],
+  "paths": {
+    "/log/in": {
+      "post": {
+        "summary": "Authenticate user",
+        "tags": [
+          "Login"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login sucess",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid password"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/log/me": {
+      "get": {
+        "summary": "Get user data",
+        "description": "Get user data with token",
+        "tags": [
+          "Login"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Token required"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/log/out": {
+      "get": {
+        "summary": "Logout user",
+        "description": "Clear token from client",
+        "tags": [
+          "Login"
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout success"
+          }
+        }
+      }
+    },
+    "/newpassword": {
+      "post": {
+        "summary": "Change user password",
+        "tags": [
+          "Login"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string"
+                  },
+                  "newPassword": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed"
+          },
+          "400": {
+            "description": "Require password and new password on request body"
+          },
+          "403": {
+            "description": "Actual password not correct"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Get all users",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password changed"
+          },
+          "403": {
+            "description": "Token required"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create user",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/users{userId}": {
+      "get": {
+        "summary": "Get user by id",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Authentication token to access API",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the user to return.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get user data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Token required"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        }
+      }
+    }
+  }
+}

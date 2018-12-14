@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const validator = require('express-validator');
 const morgan = require('morgan');
 const logger = require('../services/logger');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./documentation.json');
 const app = express();
 
 function enableCors() {
@@ -30,6 +32,8 @@ function setMiddleares() {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.use(validator());
+  
+  app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   console.log('+ Middlewares loaded');
 }
 
