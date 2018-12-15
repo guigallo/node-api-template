@@ -2,30 +2,24 @@ const helper = require('../helper/testHelper');
 const User = require('../models/User');
 const should = helper.should();
 
-let id = '';
+let testUsers = '';
 let token = '';
 
 describe('Log in/out', () => {
   before(done => {
-    User.deleteMany({}, err => {
-      const user = new User({
-        name: helper.defaultUser.name,
-        email: helper.defaultUser.email,
-        password: helper.passwordsUtil.hashed(helper.defaultUser.password)
-      });
-
-      user.save((err, user) => {
-        id = user._id;
+    helper.saveDefaultUser()
+      .then(users => {
+        testUsers = users;
         done();
-      });
-    });
+      })
+      .catch(err => console.log(err));
   });
-
+  
   after(done => {
     User.deleteMany({}, err => {
       done();
     })
-  })
+  });
 
   /**
    * Test the log in
@@ -87,7 +81,7 @@ describe('Log in/out', () => {
         .end((err, res) => {
           res.should.have.status(200);
           res.should.have.property('body');
-          res.body.should.have.property('_id').to.equal(id.toString());
+          res.body.should.have.property('_id').to.equal(testUsers[0]._id.toString());
           res.body.should.have.property('name').eql(helper.defaultUser.name);
           res.body.should.have.property('email').eql(helper.defaultUser.email);
           done();

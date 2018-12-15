@@ -7,7 +7,7 @@ const server = app.listen(config.port, function() {
   if (usingHost === '::')
     usingHost = 'localhost';
 
-  console.log('App listening at http://%s:%s', usingHost, usingPort)
+  console.log('API running at http://%s:%s', usingHost, usingPort)
 })
 
 module.exports = app;

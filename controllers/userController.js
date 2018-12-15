@@ -15,6 +15,7 @@ module.exports = {
           id: usuario._id,
           name: usuario.name,
           email: usuario.email,
+          permissions: usuario.permissions
         })
       );
 
@@ -25,8 +26,8 @@ module.exports = {
 
   getUserById(req, res) {
     userModel.findById( req.params.id, function(err, usuario) {
-      if(err) return res.status(500).json({ message: 'Houve um erro ao buscar os usuários' });
       if(! usuario) return res.status(404).json({ message: 'Nenhum usuário encontrado' });
+      if(err) return res.status(500).json({ message: 'Houve um erro ao buscar os usuários' });
       
       logger.info('Consulta de usuário feita por: ' + req.user.id);
       return res.status(200).json({
@@ -45,7 +46,7 @@ module.exports = {
       name: req.body.name,
       email: req.body.email,
       password: hashedPassword,
-      permissions: ['user']
+      permissions: ['user:read','user:write']
     }, function(err, User) {
       if(err) return res.status(500).json({ message: 'Houve um erro ao registrar o usuário' });
 
