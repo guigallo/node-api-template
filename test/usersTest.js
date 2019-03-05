@@ -1,7 +1,7 @@
-const helper = require('../helper/testHelper');
+const env = require('./config/env');
 const User = require('../models/User');
 const assert = require('assert');
-const should = helper.should();
+const should = env.should();
 const logger = require('../services/logger');
 
 let testUsers = '';
@@ -9,15 +9,15 @@ let defaultToken;
 let lowToken;
 describe('User routes', () => {
   before(done => {
-    helper.saveDefaultUser()
+    env.saveDefaultUser()
       .then(users => {
         testUsers = users;
         
-        helper.getDefaultUserToken()
+        env.getDefaultUserToken()
         .then(defToken => {
           defaultToken = defToken
 
-          helper.getLowUserToken()
+          env.getLowUserToken()
             .then(lToken => {
               lowToken = lToken;
               done()
@@ -38,18 +38,18 @@ describe('User routes', () => {
    */
   describe('# GET users', () => {
     it('Get array of users', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .get('/users')
         .set('x-access-token', defaultToken)
         .end((err, res) => {
           if(err) logger.info(err);
 
           res.should.have.status(200);
-          assert.deepEqual(res.body, [{
+          assert.deepEqual(res.body.result, [{
             id: testUsers[0]._id.toString(),
             name: 'Test user',
             email: 'mocha@test.com',
-            permissions: ['user:read', 'user:write']
+            permissions: ['user:create', 'user:read', 'user:update', 'user:delete']
           },{
             id: testUsers[1]._id.toString(),
             name: 'Low permission user',
@@ -61,21 +61,21 @@ describe('User routes', () => {
     });
 
     it('Get users with no permission', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .get('/users')
         .set('x-access-token', lowToken)
         .end((err, res) => {
           if(err) logger.info(err);
 
-          res.should.have.status(500);
-          assert.deepEqual(res.body, { message: 'Internal error.' });
+          res.should.have.status(403);
+          assert.deepEqual(res.body, { errors: 'User has no permission' });
           
           done();
         })
     });
 
     it('Get users without token', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .get('/users')
         .end((err, res) => {
           if(err) logger.info(err);
@@ -83,7 +83,7 @@ describe('User routes', () => {
           res.should.have.status(403);
           assert.deepEqual(res.body, {
             auth: false,
-            message: "Nenhum token fornecido."
+            errors: "Token not provided."
           });
           done()
         });
@@ -96,7 +96,7 @@ describe('User routes', () => {
   describe('# GET user by ID', () => {
     it('Success to GET user by ID', done => {
       let id = testUsers[0]._id.toString();
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .get(`/users/${id}`)
         .set('x-access-token', defaultToken)
         .end((err, res) => {
@@ -114,41 +114,41 @@ describe('User routes', () => {
 
     it('Error to get users with no permission', done => {
       let id = testUsers[1]._id.toString();
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .get(`/users/${id}`)
         .set('x-access-token', lowToken)
         .end((err, res) => {
           if(err) logger.info(err);
 
-          res.should.has.status(500);
-          assert.deepEqual(res.body, { message: 'Internal error.' });
+          res.should.has.status(403);
+          assert.deepEqual(res.body, { errors: 'User has no permission' });
           done();
         })
     });
 
     it('Error to get users with no token', done => {
       let id = testUsers[1]._id.toString();
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .get(`/users/${id}`)
         .end((err, res) => {
           if(err) logger.info(err);
 
           res.should.has.status(403);
           res.body.should.have.property('auth').eql(false);
-          res.body.should.have.property('message').eql('Nenhum token fornecido.');
+          res.body.should.have.property('errors').eql('Token not provided.');
           done();
         })
     });
 
     it('Search user not found', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .get(`/users/invalidId`)
         .set('x-access-token', defaultToken)
         .end((err, res) => {
           if(err) logger.info(err);
 
           res.should.has.status(404);
-          assert.deepEqual(res.body, { message: 'Nenhum usuário encontrado' });
+          assert.deepEqual(res.body, { errors: 'User not found' });
           done();
         });
     });
@@ -159,7 +159,7 @@ describe('User routes', () => {
    */
   describe('# Create user', () => {
     it('Success to create user', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .post('/users')
         .send({
           name: 'Create user',
@@ -177,7 +177,7 @@ describe('User routes', () => {
     });
 
     it('Error by empty name', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .post('/users')
         .send({
           email: 'create@user.com',
@@ -187,16 +187,16 @@ describe('User routes', () => {
 
           if(err) logger.info(err);
 
-          res.should.has.status(400);
-          res.body[0].should.have.property('location').eql('params');
-          res.body[0].should.have.property('param').eql('name');
-          res.body[0].should.have.property('msg').eql('Nome é obrigatório.');
+          res.should.has.status(422);
+          res.body.errors[0].should.have.property('location').eql('body');
+          res.body.errors[0].should.have.property('param').eql('name');
+          res.body.errors[0].should.have.property('msg').eql('Name is required');
           done();
         });
     });
 
     it('Error by empty email', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .post('/users')
         .send({
           name: 'Create user',
@@ -206,16 +206,16 @@ describe('User routes', () => {
 
           if(err) logger.info(err);
 
-          res.should.has.status(400);
-          res.body[0].should.have.property('location').eql('params');
-          res.body[0].should.have.property('param').eql('email');
-          res.body[0].should.have.property('msg').eql('Email é obrigatório.');
+          res.should.has.status(422);
+          res.body.errors[0].should.have.property('location').eql('body');
+          res.body.errors[0].should.have.property('param').eql('email');
+          res.body.errors[0].should.have.property('msg').eql('Email is required');
           done();
         });
     });
 
     it('Error by empty password', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .post('/users')
         .send({
           name: 'Create user',
@@ -224,10 +224,10 @@ describe('User routes', () => {
         .end((err, res) => {
           if(err) logger.info(err);
 
-          res.should.has.status(400);
-          res.body[0].should.have.property('location').eql('params');
-          res.body[0].should.have.property('param').eql('password');
-          res.body[0].should.have.property('msg').eql('Senha é obrigatória.');
+          res.should.has.status(422);
+          res.body.errors[0].should.have.property('location').eql('body');
+          res.body.errors[0].should.have.property('param').eql('password');
+          res.body.errors[0].should.have.property('msg').eql('Password is required');
           done();
         });
     });
@@ -238,7 +238,7 @@ describe('User routes', () => {
    */
   describe('# Update user', () => {
     it('Success to update user', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .put(`/users/${testUsers[1]._id.toString()}`)
         .set('x-access-token', defaultToken)
         .send({
@@ -249,13 +249,13 @@ describe('User routes', () => {
           if(err) logger.info(err);
 
           res.should.has.status(201);
-          res.body.should.have.property('message').eql('Usuário alterado com sucesso.');
+          res.body.should.have.property('message').eql('User update successfully');
           done();
         });
     });
 
     it('Error to update user with no permission', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .put(`/users/${testUsers[1]._id.toString()}`)
         .set('x-access-token', lowToken)
         .send({
@@ -265,14 +265,14 @@ describe('User routes', () => {
         .end((err, res) => {
           if(err) logger.info(err);
 
-          res.should.has.status(500);
-          res.body.should.have.property('message').eql('Internal error.');
+          res.should.has.status(403);
+          res.body.should.have.property('errors').eql('User has no permission');
           done();
         });
     });
 
     it('Error to update user with no token', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .put(`/users/${testUsers[1]._id.toString()}`)
         .send({
           name: 'Updated name',
@@ -283,13 +283,13 @@ describe('User routes', () => {
 
           res.should.has.status(403);
           res.body.should.have.property('auth').eql(false);
-          res.body.should.have.property('message').eql('Nenhum token fornecido.');
+          res.body.should.have.property('errors').eql('Token not provided.');
           done();
         });
     });
 
     it('Error to change password', done => {
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .put(`/users/${testUsers[1]._id.toString()}`)
         .set('x-access-token', defaultToken)
         .send({
@@ -300,7 +300,7 @@ describe('User routes', () => {
           if(err) logger.info(err);
 
           res.should.has.status(400);
-          res.body.should.have.property('message').eql('Use a rota "/user/newpassword" para alterar a senha');
+          res.body.should.have.property('message').eql('To change password, use the path "/user/newpassword"');
           done();
         });
     });
@@ -312,41 +312,41 @@ describe('User routes', () => {
   describe('# Delete user', () => {
     it('Error to delete user with no permission', done => {
       let id = testUsers[1]._id.toString()
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .del(`/users/${id}`)
         .set('x-access-token', lowToken)
         .end((err, res) => {
           if(err) logger.info(err);
 
-          res.should.has.status(500);
-          res.body.should.have.property('message').eql(`Internal error.`);
+          res.should.has.status(403);
+          res.body.should.have.property('errors').eql(`User has no permission`);
           done();
         });
     });
 
     it('Error to delete user with no token', done => {
       let id = testUsers[1]._id.toString()
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .del(`/users/${id}`)
         .end((err, res) => {
           if(err) logger.info(err);
 
           res.should.has.status(403);
-          res.body.should.have.property('message').eql(`Nenhum token fornecido.`);
+          res.body.should.have.property('errors').eql(`Token not provided.`);
           done();
         });
     });
 
     it('Success to delete user', done => {
       let id = testUsers[1]._id.toString()
-      helper.chai.request(helper.express)
+      env.chai.request(env.express)
         .del(`/users/${id}`)
         .set('x-access-token', defaultToken)
         .end((err, res) => {
           if(err) logger.info(err);
 
           res.should.has.status(201);
-          res.body.should.have.property('message').eql(`Usuário deletado com sucesso. Id: ${id}`);
+          res.body.should.have.property('message').eql(`User id: ${id} deleted successfully`);
           done();
         });
     });

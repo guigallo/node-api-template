@@ -1,12 +1,36 @@
-const controller = require('../controllers/userController');
-const VerifyToken = require('../utils/VerifyToken');
-const guard = require('express-jwt-permissions')();
-const ROTA = '/users';
+const controller = require('../controllers/UserController')
+const guard = require('express-jwt-permissions')()
+const handlPermissionDenied = require('../middlewares/handlePermissionDenied')
+const VerifyToken = require('../middlewares/VerifyToken')
 
-module.exports = function(app) {
-  app.get(ROTA, VerifyToken, guard.check('user:read'), controller.getAllUsers);
-  app.get(ROTA + '/:id', VerifyToken, guard.check('user:read'), controller.getUserById);
-  app.post(ROTA, controller.createUser);
-  app.put(ROTA + '/:id', VerifyToken, guard.check('user:write'), controller.updateUser);
-  app.delete(ROTA + '/:id', VerifyToken, guard.check('user:write'), controller.deleteUser);
-}
+const path = '/users'
+const name = 'user'
+module.exports = app => app
+  .post( 
+    path,
+    controller.validate,
+    controller.create)
+  .get(
+    path,
+    VerifyToken,
+    guard.check([`${name}:read`]),
+    handlPermissionDenied,
+    controller.read)
+  .get(
+    `${path}/:id`,
+    VerifyToken,
+    guard.check([`${name}:read`]),
+    handlPermissionDenied,
+    controller.readById)
+  .put(
+    `${path}/:id`,
+    VerifyToken,
+    guard.check([`${name}:update`]),
+    handlPermissionDenied,
+    controller.update)
+  .delete(
+    `${path}/:id`,
+    VerifyToken,
+    guard.check([`${name}:delete`]),
+    handlPermissionDenied,
+    controller.delete)

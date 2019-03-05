@@ -1,4 +1,4 @@
-const bcryptjs = require('bcryptjs');
+const bcryptjs = require('bcryptjs')
 
 class PasswordsUtil {
   hashed(senha) {
@@ -10,5 +10,5 @@ class PasswordsUtil {
   }
 }
 
-const passwordsUtil = new PasswordsUtil();
-module.exports = passwordsUtil;
+const passwordsUtil = new PasswordsUtil()
+module.exports = passwordsUtil
