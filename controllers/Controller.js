@@ -1,3 +1,4 @@
+const config = require('../config/config')
 const validate = require('../middlewares/validateRequest')
 const logger = require('../services/logger')
 const PasswordUtil = require('../utils/PasswordsUtil')
@@ -20,8 +21,12 @@ class Controller {
 
   create(callback) {
     if(! validate(this.request, this.response)) return
-
-    let model = {}
+    
+    let model = this.name === 'User' ? {} : {
+      owner: this.request.user.id,
+      contract: this.request.user.contract
+    }
+    
     this.properties.forEach(property => {
       if(this.request.body[property])
         model[property] = this.request.body[property]
@@ -30,7 +35,8 @@ class Controller {
     if(this.name === 'User')
       model.password = PasswordUtil.hashed(model.password)
 
-    this.Model.create(model, (errors, created) => {      
+    this.Model.create(model, (errors, created) => {
+      if(errors && errors.code === 11000) return this.response.status(403).json({ errors: ['Cant create duplicated data']})
       if(errors) return this.response.status(500).json({ errors })
 
       this._log('created');

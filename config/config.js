@@ -1,13 +1,26 @@
-const port = process.env.PORT || 3001;
-
 module.exports = {
-  port:         port,
+  /**
+   * API Config
+   */
+  port:         process.env.PORT || 3001,
 
+  /**
+   * DB Config
+   */
   dbAddress:    'localhost',
   dbPort:       '27017',
   dbDataBase:   'node-base-api',
 
+  /**
+   * Token Config
+   */
   expireToken:  86400, // 24 hours
+  secret:       'muitosecreto26+', // change to environment variable
 
-  secret:       'muitosecreto26+' // chanto to environment variable
-};
+  /**
+   * User Config
+   */
+  byContract:   true,
+  byOwner:      false,
+  byCompany:    true
+}

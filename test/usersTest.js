@@ -49,12 +49,14 @@ describe('User routes', () => {
             id: testUsers[0]._id.toString(),
             name: 'Test user',
             email: 'mocha@test.com',
-            permissions: ['user:create', 'user:read', 'user:update', 'user:delete']
+            permissions: ['user:create', 'user:read', 'user:update', 'user:delete'],
+            contract: 'nbj'
           },{
             id: testUsers[1]._id.toString(),
             name: 'Low permission user',
             email: 'low@permission.com',
-            permissions: ['nothing']
+            permissions: ['nothing'],
+            contract: 'nbj'
           }]);
           done();
         })
@@ -106,7 +108,14 @@ describe('User routes', () => {
           assert.deepEqual(res.body, {
             id,
             name: 'Test user',
-            email: 'mocha@test.com'
+            email: 'mocha@test.com',
+            contract: 'nbj',
+            permissions: [ 
+              "user:create",
+              "user:read",
+              "user:update",
+              "user:delete"
+            ]                
           });
           done();
         })
@@ -164,7 +173,8 @@ describe('User routes', () => {
         .send({
           name: 'Create user',
           email: 'create@user.com',
-          password: 'create123'
+          password: 'create123',
+          contract: 'nbj'
         })
         .end((err, res) => {
           if(err) logger.info(err);
@@ -181,7 +191,8 @@ describe('User routes', () => {
         .post('/users')
         .send({
           email: 'create@user.com',
-          password: 'create123'
+          password: 'create123',
+          contract: 'nbj'
         })
         .end((err, res) => {
 
@@ -200,7 +211,8 @@ describe('User routes', () => {
         .post('/users')
         .send({
           name: 'Create user',
-          password: 'create123'
+          password: 'create123',
+          contract: 'nbj'
         })
         .end((err, res) => {
 
@@ -220,6 +232,7 @@ describe('User routes', () => {
         .send({
           name: 'Create user',
           email: 'create@user.com',
+          contract: 'nbj'
         })
         .end((err, res) => {
           if(err) logger.info(err);
@@ -228,6 +241,25 @@ describe('User routes', () => {
           res.body.errors[0].should.have.property('location').eql('body');
           res.body.errors[0].should.have.property('param').eql('password');
           res.body.errors[0].should.have.property('msg').eql('Password is required');
+          done();
+        });
+    });
+
+    it('Error by no user contract', done => {
+      env.chai.request(env.express)
+        .post('/users')
+        .send({
+          name: 'Create user',
+          email: 'create@user.com',
+          password: 'create123'
+        })
+        .end((err, res) => {
+          if(err) logger.info(err);
+
+          res.should.has.status(422);
+          res.body.errors[0].should.have.property('location').eql('body');
+          res.body.errors[0].should.have.property('param').eql('contract');
+          res.body.errors[0].should.have.property('msg').eql('Contract is required');
           done();
         });
     });

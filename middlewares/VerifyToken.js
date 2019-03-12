@@ -10,7 +10,9 @@ const VerifyToken = (req, res, next) => {
 
     req.user = {
       id: decoded.id,
-      permissions: decoded.permissions
+      permissions: decoded.permissions,
+      contract: decoded.contract,
+      companies: decoded.companies
     }
     
     next()

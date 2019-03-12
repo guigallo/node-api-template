@@ -13,14 +13,16 @@ const defaultUser = {
   email: 'mocha@test.com',
   password: 'test123456',
   newPassword: 'new123456',
-  permissions: ['user:create', 'user:read', 'user:update', 'user:delete']
+  permissions: ['user:create', 'user:read', 'user:update', 'user:delete'],
+  contract: 'nbj'
 },
 lowPermissionUser = {
   name: 'Low permission user',
   email: 'low@permission.com',
   password: 'test123456',
   newPassword: 'new123456',
-  permissions: ['nothing']
+  permissions: ['nothing'],
+  contract: 'nbj'
 }
 
 let defaultToken;
@@ -61,13 +63,15 @@ module.exports = {
         name: defaultUser.name,
         email: defaultUser.email,
         password: passwordsUtil.hashed(defaultUser.password),
-        permissions: defaultUser.permissions
+        permissions: defaultUser.permissions,
+        contract: defaultUser.contract
       });
       const lowUser = new UserModel({
         name: lowPermissionUser.name,
         email: lowPermissionUser.email,
         password: passwordsUtil.hashed(lowPermissionUser.password),
-        permissions: lowPermissionUser.permissions
+        permissions: lowPermissionUser.permissions,
+        contract: lowPermissionUser.contract
       });
 
       UserModel.insertMany([defUser, lowUser], function(err, saved) {
