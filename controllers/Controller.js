@@ -1,4 +1,4 @@
-const config = require('../config/config')
+const config = require('../config')
 const validate = require('../middlewares/validateRequest')
 const logger = require('../services/logger')
 const PasswordUtil = require('../utils/PasswordsUtil')

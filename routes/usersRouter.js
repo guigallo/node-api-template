@@ -1,3 +1,4 @@
+const config = require('../config')
 const controller = require('../controllers/UserController')
 const guard = require('express-jwt-permissions')()
 const handlPermissionDenied = require('../middlewares/handlePermissionDenied')
@@ -8,6 +9,9 @@ const name = 'user'
 module.exports = app => app
   .post( 
     path,
+    !config.annonCanCreate && VerifyToken,
+    !config.annonCanCreate && guard.check([`${name}:create`]),
+    !config.annonCanCreate && handlPermissionDenied,
     controller.validate,
     controller.create)
   .get(
@@ -34,3 +38,4 @@ module.exports = app => app
     guard.check([`${name}:delete`]),
     handlPermissionDenied,
     controller.delete)
+    

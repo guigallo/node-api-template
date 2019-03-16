@@ -1,4 +1,4 @@
-const config = require('../config/config')
+const config = require('../config')
 const mongoose = require('mongoose')
 mongoose.set('useFindAndModify', false)
 mongoose.set('useCreateIndex', true)

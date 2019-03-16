@@ -1,4 +1,4 @@
-const config = require('./config/config')
+const config = require('./config')
 const app = require('./config/express')()
 
 const server = app.listen(config.port, function() {
