@@ -1,0 +1,5 @@
+/.vscode/*
+/documentation/*
+/logs/*
+/node_modules/*
+/test/*

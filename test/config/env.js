@@ -1,12 +1,12 @@
-process.env.NODE_ENV = 'test';
-const chai = require('chai');
-const http = require('chai-http');
-const UserModel = require('../../models/User');
-const passwordsUtil = require('../../utils/PasswordsUtil');
-const logger = require('../../services/logger');
-const getToken = require('../helper/getToken');
+process.env.NODE_ENV = 'test'
+const chai = require('chai')
+const http = require('chai-http')
+const UserModel = require('../../models/User')
+const passwordsUtil = require('../../utils/PasswordsUtil')
+const logger = require('../../services/logger')
+const getToken = require('../helper/getToken')
 
-chai.use(http);
+chai.use(http)
 
 const defaultUser = {
   name: 'Test user',
@@ -15,8 +15,8 @@ const defaultUser = {
   newPassword: 'new123456',
   permissions: ['user:create', 'user:read', 'user:update', 'user:delete'],
   contract: 'nbj'
-},
-lowPermissionUser = {
+}
+const lowPermissionUser = {
   name: 'Low permission user',
   email: 'low@permission.com',
   password: 'test123456',
@@ -25,19 +25,21 @@ lowPermissionUser = {
   contract: 'nbj'
 }
 
-let defaultToken;
-function getDefaultUserToken() {
+let defaultToken
+/*
+function getDefaultUserToken () {
   getToken(defaultUser)
     .then(token => defaultToken = token)
     .catch(err => logger.info(err));
-}
+} */
 
-let lowToken;
+let lowToken
+/*
 function getLowUserToken() {
   getToken(lowPermissionUser)
     .then(token => { return token })
     .catch(err => logger.info(err));
-}
+} */
 
 module.exports = {
   chai,
@@ -48,16 +50,16 @@ module.exports = {
   defaultUser,
   defaultToken,
   lowToken,
-  
-  getDefaultUserToken() {
-    return getToken(defaultUser);
-  },
-  
-  getLowUserToken() {
-    return getToken(lowPermissionUser);
+
+  getDefaultUserToken () {
+    return getToken(defaultUser)
   },
 
-  saveDefaultUser() {
+  getLowUserToken () {
+    return getToken(lowPermissionUser)
+  },
+
+  saveDefaultUser () {
     return new Promise((resolve, reject) => {
       const defUser = new UserModel({
         name: defaultUser.name,
@@ -65,19 +67,19 @@ module.exports = {
         password: passwordsUtil.hashed(defaultUser.password),
         permissions: defaultUser.permissions,
         contract: defaultUser.contract
-      });
+      })
       const lowUser = new UserModel({
         name: lowPermissionUser.name,
         email: lowPermissionUser.email,
         password: passwordsUtil.hashed(lowPermissionUser.password),
         permissions: lowPermissionUser.permissions,
         contract: lowPermissionUser.contract
-      });
+      })
 
-      UserModel.insertMany([defUser, lowUser], function(err, saved) {
-        if(err) logger.info(err);
-        resolve(saved);
-      });
-    });
+      UserModel.insertMany([defUser, lowUser], function (err, saved) {
+        if (err) logger.info(err)
+        resolve(saved)
+      })
+    })
   }
 }

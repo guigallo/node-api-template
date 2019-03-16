@@ -7,7 +7,7 @@ const VerifyToken = require('../middlewares/VerifyToken')
 const path = '/users'
 const name = 'user'
 module.exports = app => app
-  .post( 
+  .post(
     path,
     !config.annonCanCreate && VerifyToken,
     !config.annonCanCreate && guard.check([`${name}:create`]),
@@ -38,4 +38,3 @@ module.exports = app => app
     guard.check([`${name}:delete`]),
     handlPermissionDenied,
     controller.delete)
-    

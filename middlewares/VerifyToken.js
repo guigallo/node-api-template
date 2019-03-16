@@ -3,10 +3,10 @@ const config = require('../config')
 
 const VerifyToken = (req, res, next) => {
   const token = req.headers['x-access-token']
-  if(! token) return res.status(403).send({ auth: false, errors: 'Token not provided.'})
+  if (!token) return res.status(403).send({ auth: false, errors: 'Token not provided.' })
 
   jwt.verify(token, config.secret, (err, decoded) => {
-    if(err) return res.status(401).send({ auth: false, errors: err.name })
+    if (err) return res.status(401).send({ auth: false, errors: err.name })
 
     req.user = {
       id: decoded.id,
@@ -14,7 +14,7 @@ const VerifyToken = (req, res, next) => {
       contract: decoded.contract,
       companies: decoded.companies
     }
-    
+
     next()
   })
 }

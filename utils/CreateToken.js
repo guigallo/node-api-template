@@ -1,7 +1,7 @@
 const config = require('../config')
 const jwt = require('jsonwebtoken')
 
-function CreateToken(id, permissions) {
+function CreateToken (id, permissions) {
   const payload = { id, permissions }
   const options = { expiresIn: config.expireToken }
   return jwt.sign(payload, config.secret, options)

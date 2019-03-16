@@ -33,7 +33,7 @@ const autoLoad = () => consign()
   .into(app)
 
 const loadErrorsPages = () => {
-  app.use((req, res, next) => res.status(404).json({ message: 'Not found.' }) )
+  app.use((req, res, next) => res.status(404).json({ message: 'Not found.' }))
   app.use((error, req, res, next) => {
     if (error) logger.info('Internal error: ' + error)
     res.status(500).json({ message: 'Internal error.' })
