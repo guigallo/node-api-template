@@ -1,4 +1,4 @@
-const config = require('../config')
+// const config = require('../config')
 const controller = require('../controllers/UserController')
 const guard = require('express-jwt-permissions')()
 const handlPermissionDenied = require('../middlewares/handlePermissionDenied')
