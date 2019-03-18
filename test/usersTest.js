@@ -3,15 +3,6 @@ const User = require('../models/User')
 const assert = require('assert')
 const should = env.should() // eslint-disable-line
 const logger = require('../services/logger')
-const getToken = require('./helper/getToken')
-const CreateToken = require('../utils/CreateToken')
-const passwordsUtil = require('../utils/PasswordsUtil')
-
-let testUsers = ''
-
-// let defaultToken
-
-let lowToken
 
 let mockData
 const company = () => mockData.company
