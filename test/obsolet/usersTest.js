@@ -54,14 +54,14 @@ describe('User routes', () => { // eslint-disable-line
             email: 'mocha@test.com',
             permissions: ['user:create', 'user:read', 'user:update', 'user:delete'],
             contract: 'nbj',
-            companies: [ company().id ]
+            company: []
           }, {
             id: mockData.lowPermissionUser._id.toString(),
             name: 'Low permission user',
             email: 'low@permission.com',
             permissions: ['nothing'],
             contract: 'nbj',
-            companies: []
+            company: []
           }])
           done()
         })
@@ -102,7 +102,7 @@ describe('User routes', () => { // eslint-disable-line
    */
   describe('# GET user by ID', () => { // eslint-disable-line
     it('Success to GET user by ID', done => { // eslint-disable-line
-      let id = defaultUser().id
+      let id = defaultUser()._id
       env.chai.request(env.express)
         .get(`/users/${id}`)
         .set('x-access-token', defaultToken())
@@ -120,18 +120,17 @@ describe('User routes', () => { // eslint-disable-line
               'user:read',
               'user:update',
               'user:delete'
-            ],
-            companies: [ company().id ]
+            ]
           })
           done()
         })
     })
 
     it('Error to get users with no permission', done => { // eslint-disable-line
-      let id = lowPermissionUser().id
+      let id = testUsers[1]._id.toString()
       env.chai.request(env.express)
         .get(`/users/${id}`)
-        .set('x-access-token', lowPermToken())
+        .set('x-access-token', lowToken)
         .end((err, res) => {
           if (err) logger.info(err)
 
@@ -142,7 +141,7 @@ describe('User routes', () => { // eslint-disable-line
     })
 
     it('Error to get users with no token', done => { // eslint-disable-line
-      let id = lowPermissionUser().id
+      let id = testUsers[1]._id.toString()
       env.chai.request(env.express)
         .get(`/users/${id}`)
         .end((err, res) => {
@@ -155,11 +154,10 @@ describe('User routes', () => { // eslint-disable-line
         })
     })
 
-    /*
     it('Search user not found', done => { // eslint-disable-line
       env.chai.request(env.express)
         .get(`/users/invalidId`)
-        .set('x-access-token', defaultToken())
+        .set('x-access-token', defaultToken)
         .end((err, res) => {
           if (err) logger.info(err)
 
@@ -168,14 +166,13 @@ describe('User routes', () => { // eslint-disable-line
           done()
         })
     })
-    */
   })
 
   /**
    * Test create user
    */
-  describe('# Create user', () => { // eslint-disable-line
-    it('Success to create user', done => { // eslint-disable-line
+  describe('# Create user', () => {
+    it('Success to create user', done => {
       env.chai.request(env.express)
         .post('/users')
         .send({
@@ -185,16 +182,16 @@ describe('User routes', () => { // eslint-disable-line
           contract: 'nbj'
         })
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(201)
-          res.body.should.have.property('auth').eql(true)
-          res.body.should.have.property('token')
-          done()
-        })
-    })
+          res.should.has.status(201);
+          res.body.should.have.property('auth').eql(true);
+          res.body.should.have.property('token');
+          done();
+        });
+    });
 
-    it('Error by empty name', done => { // eslint-disable-line
+    it('Error by empty name', done => {
       env.chai.request(env.express)
         .post('/users')
         .send({
@@ -203,17 +200,18 @@ describe('User routes', () => { // eslint-disable-line
           contract: 'nbj'
         })
         .end((err, res) => {
-          if (err) logger.info(err)
 
-          res.should.has.status(422)
-          res.body.errors[0].should.have.property('location').eql('body')
-          res.body.errors[0].should.have.property('param').eql('name')
-          res.body.errors[0].should.have.property('msg').eql('Name is required')
-          done()
-        })
-    })
+          if(err) logger.info(err);
 
-    it('Error by empty email', done => { // eslint-disable-line
+          res.should.has.status(422);
+          res.body.errors[0].should.have.property('location').eql('body');
+          res.body.errors[0].should.have.property('param').eql('name');
+          res.body.errors[0].should.have.property('msg').eql('Name is required');
+          done();
+        });
+    });
+
+    it('Error by empty email', done => {
       env.chai.request(env.express)
         .post('/users')
         .send({
@@ -222,17 +220,18 @@ describe('User routes', () => { // eslint-disable-line
           contract: 'nbj'
         })
         .end((err, res) => {
-          if (err) logger.info(err)
 
-          res.should.has.status(422)
-          res.body.errors[0].should.have.property('location').eql('body')
-          res.body.errors[0].should.have.property('param').eql('email')
-          res.body.errors[0].should.have.property('msg').eql('Email is required')
-          done()
-        })
-    })
+          if(err) logger.info(err);
 
-    it('Error by empty password', done => { // eslint-disable-line
+          res.should.has.status(422);
+          res.body.errors[0].should.have.property('location').eql('body');
+          res.body.errors[0].should.have.property('param').eql('email');
+          res.body.errors[0].should.have.property('msg').eql('Email is required');
+          done();
+        });
+    });
+
+    it('Error by empty password', done => {
       env.chai.request(env.express)
         .post('/users')
         .send({
@@ -241,17 +240,17 @@ describe('User routes', () => { // eslint-disable-line
           contract: 'nbj'
         })
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(422)
-          res.body.errors[0].should.have.property('location').eql('body')
-          res.body.errors[0].should.have.property('param').eql('password')
-          res.body.errors[0].should.have.property('msg').eql('Password is required')
-          done()
-        })
-    })
+          res.should.has.status(422);
+          res.body.errors[0].should.have.property('location').eql('body');
+          res.body.errors[0].should.have.property('param').eql('password');
+          res.body.errors[0].should.have.property('msg').eql('Password is required');
+          done();
+        });
+    });
 
-    it('Error by no user contract', done => { // eslint-disable-line
+    it('Error by no user contract', done => {
       env.chai.request(env.express)
         .post('/users')
         .send({
@@ -260,134 +259,133 @@ describe('User routes', () => { // eslint-disable-line
           password: 'create123'
         })
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(422)
-          res.body.errors[0].should.have.property('location').eql('body')
-          res.body.errors[0].should.have.property('param').eql('contract')
-          res.body.errors[0].should.have.property('msg').eql('Contract is required')
-          done()
-        })
-    })
-  })
+          res.should.has.status(422);
+          res.body.errors[0].should.have.property('location').eql('body');
+          res.body.errors[0].should.have.property('param').eql('contract');
+          res.body.errors[0].should.have.property('msg').eql('Contract is required');
+          done();
+        });
+    });
+  });
 
   /**
    * Test update user
    */
-  describe('# Update user', () => { // eslint-disable-line
-    it('Success to update user', done => { // eslint-disable-line
+  describe('# Update user', () => {
+    it('Success to update user', done => {
       env.chai.request(env.express)
-        .put(`/users/${defaultUser().id.toString()}`)
-        .set('x-access-token', defaultToken())
+        .put(`/users/${testUsers[1]._id.toString()}`)
+        .set('x-access-token', defaultToken)
         .send({
           name: 'Updated name',
-          email: 'updated@email.com'
+          email: 'updated@email.com',
         })
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(201)
-          res.body.should.have.property('message').eql('User update successfully')
-          done()
-        })
-    })
+          res.should.has.status(201);
+          res.body.should.have.property('message').eql('User update successfully');
+          done();
+        });
+    });
 
-    it('Error to update user with no permission', done => { // eslint-disable-line
+    it('Error to update user with no permission', done => {
       env.chai.request(env.express)
-        .put(`/users/${defaultUser().id.toString()}`)
-        .set('x-access-token', lowPermToken())
+        .put(`/users/${testUsers[1]._id.toString()}`)
+        .set('x-access-token', lowToken)
         .send({
           name: 'Updated name',
-          email: 'updated@email.com'
+          email: 'updated@email.com',
         })
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(403)
-          res.body.should.have.property('errors').eql('User has no permission')
-          done()
-        })
-    })
+          res.should.has.status(403);
+          res.body.should.have.property('errors').eql('User has no permission');
+          done();
+        });
+    });
 
-    it('Error to update user with no token', done => { // eslint-disable-line
+    it('Error to update user with no token', done => {
       env.chai.request(env.express)
-        .put(`/users/${defaultUser().id.toString()}`)
+        .put(`/users/${testUsers[1]._id.toString()}`)
         .send({
           name: 'Updated name',
-          email: 'updated@email.com'
+          email: 'updated@email.com',
         })
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(403)
-          res.body.should.have.property('auth').eql(false)
-          res.body.should.have.property('errors').eql('Token not provided.')
-          done()
-        })
-    })
+          res.should.has.status(403);
+          res.body.should.have.property('auth').eql(false);
+          res.body.should.have.property('errors').eql('Token not provided.');
+          done();
+        });
+    });
 
-    it('Error to change password', done => { // eslint-disable-line
+    it('Error to change password', done => {
       env.chai.request(env.express)
-        .put(`/users/${defaultUser().id.toString()}`)
-        .set('x-access-token', lowPermToken())
+        .put(`/users/${testUsers[1]._id.toString()}`)
+        .set('x-access-token', defaultToken)
         .send({
           password: 'password',
           newPassword: 'newPassword'
         })
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(403)
-          res.body.should.have.property('errors').eql('User has no permission')
-          // res.body.should.have.property('message').eql('To change password, use the path "/user/newpassword"')
-          done()
-        })
-    })
-  })
+          res.should.has.status(400);
+          res.body.should.have.property('message').eql('To change password, use the path "/user/newpassword"');
+          done();
+        });
+    });
+  });
 
   /**
    * Test delete user
    */
-  describe('# Delete user', () => { // eslint-disable-line
-    it('Error to delete user with no permission', done => { // eslint-disable-line
-      let id = defaultUser().id.toString()
+  describe('# Delete user', () => {
+    it('Error to delete user with no permission', done => {
+      let id = testUsers[1]._id.toString()
       env.chai.request(env.express)
         .del(`/users/${id}`)
-        .set('x-access-token', lowPermToken())
+        .set('x-access-token', lowToken)
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(403)
-          res.body.should.have.property('errors').eql(`User has no permission`)
-          done()
-        })
-    })
+          res.should.has.status(403);
+          res.body.should.have.property('errors').eql(`User has no permission`);
+          done();
+        });
+    });
 
-    it('Error to delete user with no token', done => { // eslint-disable-line
-      let id = defaultUser().id.toString()
+    it('Error to delete user with no token', done => {
+      let id = testUsers[1]._id.toString()
       env.chai.request(env.express)
         .del(`/users/${id}`)
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(403)
-          res.body.should.have.property('errors').eql(`Token not provided.`)
-          done()
-        })
-    })
+          res.should.has.status(403);
+          res.body.should.have.property('errors').eql(`Token not provided.`);
+          done();
+        });
+    });
 
-    it('Success to delete user', done => { // eslint-disable-line
-      let id = defaultUser().id.toString()
+    it('Success to delete user', done => {
+      let id = testUsers[1]._id.toString()
       env.chai.request(env.express)
         .del(`/users/${id}`)
-        .set('x-access-token', defaultToken())
+        .set('x-access-token', defaultToken)
         .end((err, res) => {
-          if (err) logger.info(err)
+          if(err) logger.info(err);
 
-          res.should.has.status(201)
-          res.body.should.have.property('message').eql(`User id: ${id} deleted successfully`)
-          done()
-        })
-    })
-  })
-})
+          res.should.has.status(201);
+          res.body.should.have.property('message').eql(`User id: ${id} deleted successfully`);
+          done();
+        });
+    });
+  });
+});

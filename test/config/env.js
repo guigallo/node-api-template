@@ -2,13 +2,16 @@ process.env.NODE_ENV = 'test'
 const chai = require('chai')
 const http = require('chai-http')
 const UserModel = require('../../models/User')
+const CompanyModel = require('../../models/Company')
 const passwordsUtil = require('../../utils/PasswordsUtil')
 const logger = require('../../services/logger')
 const getToken = require('../helper/getToken')
 
 chai.use(http)
 
-const defaultUser = {
+const defaultCompany = { name: 'Empresa' }
+
+const defaultUserMock = {
   name: 'Test user',
   email: 'mocha@test.com',
   password: 'test123456',
@@ -16,7 +19,7 @@ const defaultUser = {
   permissions: ['user:create', 'user:read', 'user:update', 'user:delete'],
   contract: 'nbj'
 }
-const lowPermissionUser = {
+const lowPermissionUserMock = {
   name: 'Low permission user',
   email: 'low@permission.com',
   password: 'test123456',
@@ -25,61 +28,67 @@ const lowPermissionUser = {
   contract: 'nbj'
 }
 
-let defaultToken
-/*
-function getDefaultUserToken () {
-  getToken(defaultUser)
-    .then(token => defaultToken = token)
-    .catch(err => logger.info(err));
-} */
+async function saveDefaultCompany () {
+  return new Promise(resolve => {
+    const companyModel = new CompanyModel({ name: defaultCompany.name })
+    CompanyModel.create(companyModel, (err, created) => {
+      if (err) logger.info(err)
+      resolve(created)
+    })
+  })
+}
 
-let lowToken
-/*
-function getLowUserToken() {
-  getToken(lowPermissionUser)
-    .then(token => { return token })
-    .catch(err => logger.info(err));
-} */
+async function saveDefaultUsers () {
+  const company = await saveDefaultCompany()
+
+  return new Promise(resolve => {
+    const defUser = new UserModel({
+      name: defaultUserMock.name,
+      email: defaultUserMock.email,
+      password: passwordsUtil.hashed(defaultUserMock.password),
+      permissions: defaultUserMock.permissions,
+      contract: defaultUserMock.contract,
+      companies: [ company ]
+    })
+    const lowUser = new UserModel({
+      name: lowPermissionUserMock.name,
+      email: lowPermissionUserMock.email,
+      password: passwordsUtil.hashed(lowPermissionUserMock.password),
+      permissions: lowPermissionUserMock.permissions,
+      contract: lowPermissionUserMock.contract,
+      companies: []
+    })
+
+    UserModel.insertMany([defUser, lowUser], function (err, saved) {
+      if (err) logger.info(err)
+      resolve({ users: saved, company })
+    })
+  })
+}
 
 module.exports = {
   chai,
   should: chai.should,
   express: require('../../index'),
   passwordsUtil,
+  defaultUserMock,
+  lowPermissionUserMock,
 
-  defaultUser,
-  defaultToken,
-  lowToken,
+  saveDefUsersAndGetTokens: async () => {
+    const { users, company } = await saveDefaultUsers()
 
-  getDefaultUserToken () {
-    return getToken(defaultUser)
-  },
+    const defaultUser = users.find(user => { return user.email === defaultUserMock.email })
+    const defaultUserToken = await getToken(defaultUserMock)
 
-  getLowUserToken () {
-    return getToken(lowPermissionUser)
-  },
+    const lowPermissionUser = users.find(user => { return user.email === lowPermissionUserMock.email })
+    const lowPermissionToken = await getToken(lowPermissionUserMock)
 
-  saveDefaultUser () {
-    return new Promise((resolve, reject) => {
-      const defUser = new UserModel({
-        name: defaultUser.name,
-        email: defaultUser.email,
-        password: passwordsUtil.hashed(defaultUser.password),
-        permissions: defaultUser.permissions,
-        contract: defaultUser.contract
-      })
-      const lowUser = new UserModel({
-        name: lowPermissionUser.name,
-        email: lowPermissionUser.email,
-        password: passwordsUtil.hashed(lowPermissionUser.password),
-        permissions: lowPermissionUser.permissions,
-        contract: lowPermissionUser.contract
-      })
-
-      UserModel.insertMany([defUser, lowUser], function (err, saved) {
-        if (err) logger.info(err)
-        resolve(saved)
-      })
-    })
+    return new Promise(resolve => resolve({
+      defaultUser,
+      defaultUserToken,
+      lowPermissionUser,
+      lowPermissionToken,
+      company
+    }))
   }
 }

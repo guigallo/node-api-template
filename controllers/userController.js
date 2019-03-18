@@ -22,7 +22,7 @@ class UserController extends Controller {
         email: user.email,
         permissions: user.permissions,
         contract: user.contract,
-        company: user.companies
+        companies: user.companies
       }))
 
       return this.response.status(200).json({ result: usersFiltered })
@@ -36,7 +36,7 @@ class UserController extends Controller {
       email: user.email,
       permissions: user.permissions,
       contract: user.contract,
-      company: user.companies
+      companies: user.companies
     }))
   }
 

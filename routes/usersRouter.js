@@ -9,9 +9,7 @@ const name = 'user'
 module.exports = app => app
   .post(
     path,
-    !config.annonCanCreate && VerifyToken,
-    !config.annonCanCreate && guard.check([`${name}:create`]),
-    !config.annonCanCreate && handlPermissionDenied,
+    // !config.annonCanCreate ? VerifyToken, guard.check([`${name}:create`]), handlPermissionDenied : [],
     controller.validate,
     controller.create)
   .get(
