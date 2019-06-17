@@ -1,16 +1,16 @@
 const Controller = require('./Controller')
 const { check } = require('express-validator/check')
-const Model = require('../models/User')
+const User = require('../models/User')
 const CreateToken = require('../utils/CreateToken')
 
 class UserController extends Controller {
   constructor (req, res) {
-    super(req, res, 'User', Model, ['name', 'email', 'password', 'contract', 'companies'])
+    super(req, res, 'User', User, ['name', 'email', 'password', 'contract', 'companies'])
   }
 
   create () {
     super.create((res, created) =>
-      res.status(201).json({ auth: true, token: CreateToken(created._id, created.permissions, created.contract) }))
+      res.status(201).json({ auth: true, token: CreateToken({ id: created._id, permissions: created.permissions, contract: created.contract }) }))
   }
 
   read () {
@@ -21,8 +21,7 @@ class UserController extends Controller {
         name: user.name,
         email: user.email,
         permissions: user.permissions,
-        contract: user.contract,
-        companies: user.companies
+        contract: user.contract
       }))
 
       return this.response.status(200).json({ result: usersFiltered })
@@ -35,8 +34,7 @@ class UserController extends Controller {
       name: user.name,
       email: user.email,
       permissions: user.permissions,
-      contract: user.contract,
-      companies: user.companies
+      contract: user.contract
     }))
   }
 
@@ -55,7 +53,6 @@ module.exports = {
     check('email').not().isEmpty().withMessage('Email is required'),
     check('password').not().isEmpty().withMessage('Password is required'),
     check('contract').not().isEmpty().withMessage('Contract is required')
-    // check('companies').not().isEmpty().withMessage('Company is required')
   ],
   create (req, res) { new UserController(req, res).create() },
   read (req, res) { new UserController(req, res).read() },

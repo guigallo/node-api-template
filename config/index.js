@@ -1,33 +1,29 @@
-const PERMISSION_BY = {
-  ALL: 'PERM_ALL',
-  OWNER: 'PERM_OWNER',
-  COMPANY: 'PERM_COMPANY'
-}
+require('dotenv/config')
 
-module.exports = {
+const config = {
   /**
    * API
    */
-  port: process.env.PORT || 3001,
+  port: process.env.PORT || 3000,
 
   /**
    * DB
    */
-  dbAddress: 'localhost',
-  dbPort: '27017',
-  dbDataBase: 'node-base-api',
+  dbAddress: process.env.DB_ADDRESS,
+  dbPort: process.env.DB_PORT,
+  dbDataBase: process.env.DB_DATABASE,
 
   /**
    * Token
    */
-  expireToken: 86400, // 24 hours
-  secret: 'muitosecreto26+', // change to environment variable
+  expireToken: process.env.EXPIRE_TOKEN, // 24 hours
+  secret: process.env.SECRET,
 
   /**
    * User
    */
-  annonCanCreate: false,
-  permissionBy: PERMISSION_BY.ALL
+  annonCanCreate: process.env.ANNON_CAN_CREATE,
+  permissionBy: process.env.PERMISSION_BY
 }
 
-module.exports.PERMISSION_BY = PERMISSION_BY
+module.exports = config

@@ -1,0 +1,7 @@
+const PERMISSIONS_BY = {
+  ALL: 'PERM_ALL',
+  OWNER: 'PERM_OWNER',
+  CONTRACT: 'PERM_CONTRACT'
+}
+
+module.exports = PERMISSIONS_BY

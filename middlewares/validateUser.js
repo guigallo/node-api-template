@@ -7,7 +7,8 @@ function validaRequest (req, res, login = false) {
 
   const errors = req.validationErrors()
   if (errors) {
-    logger.info('Erro de validação: ' + errors)
+    const errorsString = errors.map(erro => JSON.stringify(erro))
+    logger.info('Erro de validação: ' + errorsString)
     res.status(400).send(errors)
     return false
   }

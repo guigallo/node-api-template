@@ -27,10 +27,11 @@ const setMiddleares = () => {
   console.log('+ Middlewares loaded')
 }
 
-const autoLoad = () => consign()
-  .include('routes')
-  .then('db')
-  .into(app)
+const autoLoad = () =>
+  consign()
+    .include('routes')
+    .then('db')
+    .into(app)
 
 const loadErrorsPages = () => {
   app.use((req, res, next) => res.status(404).json({ message: 'Not found.' }))

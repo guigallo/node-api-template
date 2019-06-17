@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const ObjectId = mongoose.Schema.Types.ObjectId
 
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -13,8 +12,8 @@ const UserSchema = new mongoose.Schema({
       'company:create', 'company:read', 'company:update', 'company:delete'
     ]
   },
-  contract: { type: String, required: true },
-  companies: { type: [{ type: ObjectId, ref: 'Company' }], required: true }
+  contract: { type: String, required: true }
 })
 UserSchema.index({ email: 1 }, { unique: true, sparse: true })
+
 module.exports = mongoose.model('User', UserSchema)

@@ -1,5 +1,3 @@
-
-
 # Created by https://www.gitignore.io/api/gitbook,node,webstorm,bower,osx
 
 ### GitBook ###
@@ -155,3 +153,6 @@ config/assets.json
 npm-shrinkwrap.json
 
 .isomorphic-loader-config.json
+
+# Env
+.env

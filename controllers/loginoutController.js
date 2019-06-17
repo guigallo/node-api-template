@@ -16,7 +16,7 @@ module.exports = {
       if (!passwordIsValid) return res.status(401).json({ auth: false, token: null })
 
       logger.info('Usuário logado: ' + User._id)
-      const token = CreateToken(User._id, User.permissions, User.contract)
+      const token = CreateToken({ id: User._id, permissions: User.permissions, contract: User.contract })
       res.status(200).json({ auth: true, token })
     })
   },

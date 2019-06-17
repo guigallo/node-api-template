@@ -11,7 +11,7 @@ module.exports = (user) => {
       const passwordIsValid = passwordsUtil.compare(user.password, User.password)
       if (!passwordIsValid) reject(new Error('Invalid password'))
 
-      resolve(CreateToken(User._id, User.permissions))
+      resolve(CreateToken({ id: User._id, permissions: User.permissions, contract: User.contract }))
     })
   })
 }

@@ -1,6 +1,8 @@
+const { permissionBy } = require('../config')
 const validate = require('../middlewares/validateRequest')
 const logger = require('../services/logger')
 const PasswordUtil = require('../utils/PasswordsUtil')
+const PERMISSIONS_BY = require('../enum/permissions')
 
 class Controller {
   constructor (req, res, name, Model, properties) {
@@ -15,71 +17,116 @@ class Controller {
     let newid = (newId) ? ` ${newId} ` : ' '
     let by = ''
     if (this.request.user) by = ` by ${this.request.user.id}`
-    logger.info(`${this.name}${newid}${action}${by}`)
+    logger.info(`${Date.now()}: ${this.name}${newid}${action}${by}`)
+  }
+
+  _queryWithPerm (where = {}) {
+    const { id, contract } = this.request.user
+    const { ALL, CONTRACT, OWNER } = PERMISSIONS_BY
+
+    switch (permissionBy) {
+      case ALL: return Object.assign({}, where)
+      case CONTRACT: return Object.assign({}, where, { contract })
+      case OWNER: return Object.assign({}, where, { owner: id })
+      default: throw new Error('invalid config permission')
+    }
+  }
+
+  _hasPermToAccess (document) {
+    const { id, contract } = this.request.user
+    const { ALL, CONTRACT, OWNER } = PERMISSIONS_BY
+
+    switch (permissionBy) {
+      case ALL: return true
+      case CONTRACT: return document.contract && document.contract.toString() === contract.toString()
+      case OWNER: return document.owner && document.owner.toString() === id.toString()
+      default: throw new Error('invalid config permission')
+    }
   }
 
   create (callback) {
     if (!validate(this.request, this.response)) return
 
-    let model = this.name === 'User' ? {} : {
-      owner: this.request.user.id,
-      contract: this.request.user.contract
-    }
+    const { name, Model, response, properties, request: { body, user } } = this
 
-    this.properties.forEach(property => {
-      if (this.request.body[property]) model[property] = this.request.body[property]
-    })
+    let ownProperties = name === 'User' ? {} : { owner: user.id, contract: user.contract }
+    const document = properties.reduce((accumulator, property) => {
+      if (name === 'User' && property === 'password') return Object.assign({}, accumulator, { [property]: PasswordUtil.hashed(body[property]) })
 
-    if (this.name === 'User') model.password = PasswordUtil.hashed(model.password)
+      return body[property]
+        ? Object.assign({}, accumulator, { [property]: body[property] })
+        : accumulator
+    }, ownProperties)
 
-    this.Model.create(model, (errors, created) => {
-      if (errors && errors.code === 11000) return this.response.status(403).json({ errors: ['Cant create duplicated data'] })
-      if (errors) return this.response.status(500).json({ errors })
+    Model.create(document, (errors, created) => {
+      if (errors && errors.code === 11000) return response.status(403).json({ message: 'Cant create duplicated data' })
+      if (errors) return response.status(500).json({ errors, message: 'Error on create document' })
 
       this._log('created')
-      if (this.name === 'User') return callback(this.response, created)
-      this.response.status(201).json({ result: created })
+
+      if (callback) return callback(response, created)
+      response.status(201).json({ result: created })
     })
   }
 
   read (callback) {
-    this.Model.find({}, (err, read) => {
-      if (err) return this.response.status(500).json({ errors: `Error to get ${this.name}` })
-      if (!read) return this.response.status(404).json({ errors: 'Nothing to return' })
+    const { Model, name, response } = this
+
+    Model.find(this._queryWithPerm(), (err, read) => {
+      if (err) return response.status(500).json({ message: `Error to get ${name}` })
+      if (!read) return response.status(404).json({ message: 'Nothing to return' })
 
       this._log('read')
-      if (this.name === 'User') return callback(read)
-      this.response.status(200).json({ result: read })
+
+      if (callback) return callback(response, read)
+      response.status(200).json({ result: read })
     })
   }
 
   readById (callback) {
-    this.Model.findById(this.request.params.id, (err, readById) => {
-      if (err) return this.response.status(500).json({ errors: `Error to get ${this.name}` })
-      if (!readById) return this.response.status(404).json({ errors: `${this.name} not found` })
+    const { Model, name, response, request: { params: { id } } } = this
+
+    Model.findById(id, (err, readById) => {
+      if (err) return response.status(500).json({ errors: `Error to get ${name}` })
+      if (!readById) return response.status(404).json({ errors: `${name} not found` })
+      if (!this._hasPermToAccess(readById)) return response.status(403).json({ errors: `User has no permission to access this document` })
 
       this._log('read')
-      if (this.name === 'User') return callback(readById)
-      this.response.status(200).json({ result: readById })
+
+      if (callback) return callback(response, readById)
+      response.status(200).json({ result: readById })
     })
   }
 
-  update () {
-    this.Model.findByIdAndUpdate(this.request.params.id, this.request.body, err => {
-      if (err) return this.response.status(500).json({ errors: `${this.name} not found` })
+  update (callback) {
+    const { response, request, name } = this
 
-      this._log('read', this.request.params.id)
-      this.response.status(201).json({ message: `${this.name} update successfully` })
+    this.readById(async (r, document) => {
+      const { body } = request
+      Object.keys(body).forEach(property => {
+        if (this.properties.includes(property)) document[property] = body[property]
+      })
+
+      await document.save()
+
+      this._log('updated', request.params.id)
+
+      if (callback) return callback(response, request.body)
+      response.status(201).json({ message: `${name} update successfully`, document })
     })
   }
 
-  delete () {
-    const id = this.request.params.id
-    this.Model.findByIdAndDelete(id, err => {
-      if (err) return this.response.status(500).json({ errors: `Error to delete ${this.name}` })
+  delete (callback) {
+    const { response, request, name } = this
+    const { params: { id } } = request
+
+    this.readById(async (r, document) => {
+      await document.delete()
 
       this._log('deleted', id)
-      this.response.status(201).json({ message: `${this.name} id: ${id} deleted successfully` })
+
+      if (callback) return callback(response, id)
+      response.status(201).json({ message: `${name} deleted successfully` })
     })
   }
 }

@@ -6,11 +6,6 @@ module.exports = (app, controller, { path, name }) => {
   if (!path) throw new Error(`Route must have property 'path'`)
   if (!name) throw new Error(`Route must have property 'name'`)
 
-  /*
-  let path = route.path
-  let name = route.name
-  */
-
   app
     .post(
       path,
