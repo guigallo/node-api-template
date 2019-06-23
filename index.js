@@ -1,12 +1,26 @@
-const config = require('./config')
-const app = require('./config/express')()
+var cluster = require('cluster')
+var os = require('os')
 
-const server = app.listen(config.port, function () {
-  let usingPort = server.address().port
-  let usingHost = server.address().address
-  if (usingHost === '::') usingHost = 'localhost'
+const CPUS = os.cpus()
 
-  console.log('API running at http://%s:%s', usingHost, usingPort)
-})
+if (cluster.isMaster) {
+  CPUS.forEach(function () {
+    cluster.fork()
+  })
 
-module.exports = app
+  cluster.on('listening', worker => {
+    console.log('Worker %d connected', worker.process.pid)
+  })
+
+  cluster.on('disconnect', worker => {
+    console.log('Worker %d disconnected', worker.process.pid)
+  })
+
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died with code: ${code}, and signal: ${signal}`)
+    console.log('Starting a new worker')
+    cluster.fork()
+  })
+} else {
+  require('./api.js')
+}

@@ -6,29 +6,29 @@ const morgan = require('morgan')
 const logger = require('../services/logger')
 const swaggerUi = require('swagger-ui-express')
 const swaggerDocument = require('../documentation/swagger.json')
-const app = express()
 const cors = require('cors')
-
-const enableCors = () => app.use(cors())
+const helmet = require('helmet')
+const compression = require('compression')
+const app = express()
 
 const startLogger = () => {
   app.use(morgan('common', {
     stream: { write: message => logger.info(message) }
   }))
-  console.log('+ Morgan and logger started')
 }
 
 const setMiddleares = () => {
+  app.use(cors())
+  app.use(helmet())
   app.use(bodyParser.urlencoded({ extended: true }))
   app.use(bodyParser.json())
   app.use(validator())
   app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
-
-  console.log('+ Middlewares loaded')
+  app.use(compression())
 }
 
 const autoLoad = () =>
-  consign()
+  consign({ verbose: false })
     .include('routes')
     .then('db')
     .into(app)
@@ -39,12 +39,9 @@ const loadErrorsPages = () => {
     if (error) logger.info('Internal error: ' + error)
     res.status(500).json({ message: 'Internal error.' })
   })
-
-  console.log('+ Errors page loaded')
 }
 
 module.exports = () => {
-  enableCors()
   startLogger()
   setMiddleares()
   autoLoad()
